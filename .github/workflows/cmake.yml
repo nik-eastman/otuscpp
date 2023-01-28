@@ -10,6 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
+      - using: 'node16'  
       - uses: actions/checkout@v2
         with:
           submodules: true
