@@ -14,7 +14,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-
 # version lib 
 configure_file(version.h.in version.h)
 add_library(version_lib lib.cpp)
@@ -25,7 +24,7 @@ target_include_directories(version_lib
 )
 
 target_link_libraries(helloworld_cli PRIVATE
-version_lib
+    version_lib
 )
 
 # testing support
@@ -41,11 +40,6 @@ set_target_properties(helloworld_cli version_lib PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
-#set_target_properties(test_version PROPERTIES
-#    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
-#    INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
-#)
-
 
 # pack to deb-package support 
 install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
