@@ -1,0 +1,15 @@
+name: 'C++ CI'
+
+on:
+  push:
+    branches:
+      - homework-02
+
+jobs:
+  build-homework-02:
+    if: github.ref == 'refs/heads/homework-02'
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: cmake --build .
+      - run: cmake --build . --target test
