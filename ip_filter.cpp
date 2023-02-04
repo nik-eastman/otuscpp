@@ -1,7 +1,5 @@
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
 #include <algorithm> 
@@ -9,25 +7,24 @@
 
 int main(int argc, char const *argv[])
 {
-    using namespace std;
     try
     {
-        vector<ipv4> ip_pool;
+        std::vector<ipv4> ip_pool;
 
-        for(string line; getline(cin, line);)
+        for(std::string line; getline(std::cin, line);)
         {
             size_t pos = line.find_first_of('\t');
-            if(pos != string::npos)
+            if(pos != std::string::npos)
                 ip_pool.emplace_back(ipv4::from_string(line.substr(0,pos)));
         }
 
         // reverse lexicographically sort
-        sort(ip_pool.begin(), ip_pool.end(), greater<ipv4>());
+        std::sort(ip_pool.begin(), ip_pool.end(), std::greater<ipv4>());
 
         // function to print ipv4-address in necessary form
         auto print_ip = [](const ipv4& ip)
         {
-            cout << ip.to_string() << endl;
+            std::cout << ip.to_string() << std::endl;
         };
 
         // output all
@@ -52,8 +49,8 @@ int main(int argc, char const *argv[])
     }
     catch(std::exception e)
     {
-        cerr << e.what() << endl;
-        return -2;
+        std::cerr << e.what() << std::endl;
+        return -1;
     }
 
     return 0;

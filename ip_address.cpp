@@ -52,7 +52,7 @@ ipv4 ipv4::from_string(const std::string &str)
         return ipv4::octet_type(v);
     };
 
-    // special case if we the last symbol is a delimiter
+    // check special case if the last symbol is a delimiter
     if(str.back() == ipv4::delimiter)
         throw std::invalid_argument("Invalid last symbol");
 
@@ -63,6 +63,7 @@ ipv4 ipv4::from_string(const std::string &str)
     ip.set<1>(parse_octet(it, str.cend()));
     ip.set<0>(parse_octet(it, str.cend()));
 
+    // if still some symbols to parse
     if(it != str.cend())
         throw std::invalid_argument("Too much octets");
 
