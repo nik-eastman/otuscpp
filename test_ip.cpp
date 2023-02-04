@@ -1,7 +1,7 @@
 #include "ip_address.h"
 #include <gtest/gtest.h>
  
-TEST(FromString, PositiveSet) {
+TEST(FromString, from_string) {
     ASSERT_EQ(ipv4::from_string("0.0.0.0"), ipv4(0x00000000));
 
     ASSERT_EQ(ipv4::from_string("0.0.0.1"), ipv4(0x00000001));
@@ -20,7 +20,56 @@ TEST(FromString, PositiveSet) {
     ASSERT_EQ(ipv4::from_string("255.254.253.252"), ipv4(0xfffefdfc));
 }
 
-TEST(ToString, PositiveSet) {
+TEST(FromString, from_string_error) {
+    // too short
+    ASSERT_THROW(ipv4::from_string("1"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.3"), std::invalid_argument);
+
+    // too short octet
+    ASSERT_THROW(ipv4::from_string(".1.2.3"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1..2.3"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2..3"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.3.."), std::invalid_argument);
+
+    // to big octet value
+    ASSERT_THROW(ipv4::from_string("256.2.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.256.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.256.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.3.256"), std::invalid_argument);
+
+    // too large octet value
+    ASSERT_THROW(ipv4::from_string("256.2.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.256.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.256.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.3.256"), std::invalid_argument);
+
+    // too large octet value
+    ASSERT_THROW(ipv4::from_string("1256.2.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.1256.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.1256.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.3.1256"), std::invalid_argument);
+
+    // too large octet length
+    ASSERT_THROW(ipv4::from_string("1256.2.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.1256.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.1256.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.3.1256"), std::invalid_argument);
+
+    // unsupported symbols
+    ASSERT_THROW(ipv4::from_string("-1256.2.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.+1256.3.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.1256+.4"), std::invalid_argument);
+    ASSERT_THROW(ipv4::from_string("1.2.3.1256-"), std::invalid_argument);
+
+    // last symbol is delimiter
+    ASSERT_THROW(ipv4::from_string("1.2.3.4."), std::invalid_argument);
+
+    // too many octets
+    ASSERT_THROW(ipv4::from_string("1.2.3.4.5"), std::invalid_argument);
+}
+ 
+TEST(ToString, to_string) {
     ASSERT_EQ("0.0.0.0", ipv4(0x00000000).to_string());
 
     ASSERT_EQ("0.0.0.1", ipv4(0x00000001).to_string());
@@ -39,9 +88,6 @@ TEST(ToString, PositiveSet) {
     ASSERT_EQ("255.254.253.252", ipv4(0xfffefdfc).to_string());
 }
 
-TEST(FromString, NegativeSet) {
-}
- 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

@@ -38,7 +38,7 @@ public:
 
     // return exact octet value
     template<unsigned _N> 
-    inline octet_type get() const noexcept
+    octet_type get() const noexcept
     { 
         // check for the range at compile time
         static_assert(_N < sizeof(container_type));
@@ -47,9 +47,9 @@ public:
         return (addr & (octet_max_value << shift)) >> shift;
     }
 
-    // set exact octet value
+    // set octet value
     template<unsigned _N> 
-    inline void set(const octet_type& v) noexcept
+    void set(const octet_type& v) noexcept
     { 
         // check for the range at compile time
         static_assert(_N < sizeof(container_type));

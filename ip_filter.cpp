@@ -50,11 +50,6 @@ int main(int argc, char const *argv[])
                ip.get<1>() == 46 ||
                ip.get<0>() == 46 ) print_ip(ip);
     }
-    catch(const char *s)
-    {
-        cerr << s << endl;
-        return -1;
-    }
     catch(std::exception e)
     {
         cerr << e.what() << endl;
