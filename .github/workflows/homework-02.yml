@@ -25,8 +25,11 @@ jobs:
           name: Homework-02 v${{ github.run_number }}
           draft: false
           prerelease: false
-      - name: Do big test
+
+      - name: Generate big test output
         run: cat ip_filter.tsv | ./ip_filter >test_output.txt
+
+      - name: Check test output
         run: md5sum -c test_output.md5
 
       - name: Upload Release Asset
