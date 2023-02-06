@@ -9,7 +9,7 @@ int main(int argc, char const *argv[])
 {
     try
     {
-        std::vector<ipv4> ip_pool;
+        std::vector<ipv4::container_type> ip_pool;
 
         for(std::string line; getline(std::cin, line);)
         {
@@ -19,12 +19,12 @@ int main(int argc, char const *argv[])
         }
 
         // reverse lexicographically sort
-        std::sort(ip_pool.begin(), ip_pool.end(), std::greater<ipv4>());
+        std::sort(ip_pool.rbegin(), ip_pool.rend());
 
         // function to print ipv4-address in necessary form
-        auto print_ip = [](const ipv4& ip)
+        auto print_ip = [](const ipv4::container_type& ip)
         {
-            std::cout << ip.to_string() << std::endl;
+            std::cout << ipv4::to_string(ip) << std::endl;
         };
 
         // output all
@@ -33,19 +33,17 @@ int main(int argc, char const *argv[])
 
         // ip = filter(1.*.*.*)
         for(auto const &ip : ip_pool)
-            if(ip.get<3>() == 1) print_ip(ip);
+            if(std::get<0>(ip) == 1) print_ip(ip);
  
         // ip = filter(46.70.*.*)
         for(auto const &ip : ip_pool)
-            if(ip.get<3>() == 46 && 
-               ip.get<2>() == 70 ) print_ip(ip);
+            if(std::get<0>(ip) == 46 && 
+               std::get<1>(ip) == 70 ) print_ip(ip);
 
         // ip = filter_any(*46*)
         for(auto const &ip : ip_pool)
-            if(ip.get<3>() == 46 || 
-               ip.get<2>() == 46 ||
-               ip.get<1>() == 46 ||
-               ip.get<0>() == 46 ) print_ip(ip);
+            if(std::any_of(ip.cbegin(), ip.cend(), [](const auto& octet) { return octet == 46; } ))
+                print_ip(ip);
     }
     catch(std::exception e)
     {

@@ -4,88 +4,79 @@
 
 #include "ip_address.h"
 
-ipv4::ipv4(const container_type& v)
-    :addr(v){}
+namespace ipv4 {
 
-ipv4 ipv4::from_string(const std::string &str)
-{
-    ipv4 ip{};
-    auto it = str.cbegin();
-    
-    // get next octet value as a number
-    // skip delimiter after octet
-    auto parse_octet = [](auto &it, auto const &it_end)->ipv4::octet_type {
-        unsigned v =0; 
-        int i =0;
-        while(it != it_end)
-        {
-            // check if it's not a digit or delimiter
-            if(!isdigit(*it)) {
-                if(*it != ipv4::delimiter)
-                    throw std::invalid_argument("Unsupported symbol");
-                else {
-                    // skip delimiter
-                    ++it;
-                    // end of loop
-                    break;
+    ipv4::container_type from_string(const std::string &str)
+    {
+        auto it = str.cbegin();
+        
+        // get next octet value as a number
+        // skip delimiter after octet
+        auto parse_octet = [](auto &it, auto const &it_end)->ipv4::octet_type {
+            unsigned v =0; 
+            int i =0;
+            while(it != it_end)
+            {
+                // check if the symbol is not a digit or a delimiter
+                if(!isdigit(*it)) {
+                    if(*it != ipv4::delimiter)
+                        throw std::invalid_argument("Unsupported symbol");
+                    else {
+                        // skip delimiter
+                        ++it;
+                        // end of loop
+                        break;
+                    }
                 }
+
+                // check for maximum 3 digits per octet
+                if(++i > 3)
+                    throw std::invalid_argument("Octet cannot be more than three digits");
+                
+                // calculate octet value
+                v = v*10 + *it-'0';
+
+                // go to the next symbol
+                ++it;
             }
+            // check if octet use at least one symbol
+            if(!i)
+                throw std::invalid_argument("Octet should use at least one symbol");
 
-            // check for maximm 3 digits per octet
-            if(++i > 3)
-                throw std::invalid_argument("Octet cannot be more than three digits");
-            
-            // calculate octet value
-            v = v*10 + *it-'0';
+            // final check that octet is in correct range
+            if(v > static_cast<unsigned>(std::numeric_limits<ipv4::octet_type>::max()))
+                throw std::invalid_argument("Octet exceeds max value");
 
-            // go to the next symbol
-            ++it;
-        }
-        // check if octet use at least one symbol
-        if(!i)
-            throw std::invalid_argument("Octet should use at least one symbol");
+            return ipv4::octet_type(v);
+        };
 
-        // final check that octet is in correct range
-        if(v > static_cast<unsigned>(ipv4::octet_max_value))
-            throw std::invalid_argument("Octet exceeds max value");
+        // check special case if the last symbol is a delimiter
+        if(str.back() == ipv4::delimiter)
+            throw std::invalid_argument("Invalid last symbol");
 
-        return ipv4::octet_type(v);
-    };
+        ipv4::container_type ip;
 
-    // check special case if the last symbol is a delimiter
-    if(str.back() == ipv4::delimiter)
-        throw std::invalid_argument("Invalid last symbol");
+        // try to parse exactly four octets
+        // we will have an exception if something is wrong
+        std::get<0>(ip) = parse_octet(it, str.cend());
+        std::get<1>(ip) = parse_octet(it, str.cend());
+        std::get<2>(ip) = parse_octet(it, str.cend());
+        std::get<3>(ip) = parse_octet(it, str.cend());
 
-    // try to parse exactly four octets
-    // we will have an exception if something is wrong
-    ip.set<3>(parse_octet(it, str.cend()));
-    ip.set<2>(parse_octet(it, str.cend()));
-    ip.set<1>(parse_octet(it, str.cend()));
-    ip.set<0>(parse_octet(it, str.cend()));
+        // if still some symbols to parse
+        if(it != str.cend())
+            throw std::invalid_argument("Too much octets");
 
-    // if still some symbols to parse
-    if(it != str.cend())
-        throw std::invalid_argument("Too much octets");
+        return ip;
+    }
 
-    return ip;
-}
-
-std::string ipv4::to_string() const
-{
-    std::ostringstream res;
-        res << unsigned(get<3>()) << ipv4::delimiter;
-        res << unsigned(get<2>()) << ipv4::delimiter;
-        res << unsigned(get<1>()) << ipv4::delimiter;
-        res << unsigned(get<0>()) ;
-    return res.str();
-}
-
-bool ipv4::operator >(const ipv4& rhs) const noexcept
-{
-    return addr > rhs.addr;
-}
-
-bool ipv4::operator ==(const ipv4& rhs) const noexcept
-{
-    return addr == rhs.addr;
+    std::string to_string(const ipv4::container_type& v)
+    {
+        std::ostringstream res;
+            res << unsigned(std::get<0>(v)) << delimiter;
+            res << unsigned(std::get<1>(v)) << delimiter;
+            res << unsigned(std::get<2>(v)) << delimiter;
+            res << unsigned(std::get<3>(v)) ;
+        return res.str();
+    }
 }
