@@ -1,8 +1,5 @@
 #pragma once
-#include <string>
-#include <sstream>
 #include <list>
-#include <iostream>
 #include <algorithm>
 
 template<typename T, std::size_t N>
@@ -16,7 +13,6 @@ public:
 
 		base_ptr = reinterpret_cast<T *>(p);
         std::fill(used_map.begin(), used_map.end(), 0);
-        //std::cout << "heap created at " << base_ptr << std::endl;
     }
 
     heap(const heap&) = delete;
@@ -29,7 +25,6 @@ public:
     }
 
     ~heap() {
-        //std::cout << "heap deleted at " << base_ptr << std::endl;
         std::free(base_ptr);
     }
 

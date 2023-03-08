@@ -1,12 +1,8 @@
 #pragma once
-#include <string>
-#include <sstream>
-#include <array>
-#include <list>
-#include <iostream>
-#include <algorithm>
 #include <iterator>
 
+// node class for ne_container
+//  - holds value and pointer to the next node
 template<typename _Type>
 struct ne_node{
     ne_node *next =nullptr;
@@ -18,11 +14,13 @@ struct ne_node{
     ne_node(const _Type& v)
         :value(v) {}
 
-    ne_node(const _Type&& v)
+    ne_node(_Type&& v)
         :value(v) {}
 };
 
-// iterator class
+// iterator class for ne_container
+//  - support the most iterator operations
+//  - support only forward direction
 template <typename _Type>
 class ne_iterator
 {
@@ -75,6 +73,10 @@ public:
     }
 };
 
+
+// ne_container class
+//   - supports basic operators to be used with algorithms and ranged loops
+//   - can be used with custom allocators
 template<typename _Type, typename A = std::allocator<_Type>>
 class ne_container {
 
@@ -88,23 +90,11 @@ public:
 // adding data
 public:
     void push_back(const _Type& v) {
-        data_type *ptr = allocate_element(v);
-        if(!_head) 
-            _head = _last = ptr;
-        else {
-            _last->next = ptr;
-            _last = ptr;
-        }
+        add_element( allocate_element(v) );
     }
 
-    void emplace_back(const _Type&& v) {
-        data_type *ptr = allocate_element(v);
-        if(!_head) 
-            _head = _last = ptr;
-        else {
-            _last->next = ptr;
-            _last = ptr;
-        }
+    void emplace_back(_Type&& v) {
+        add_element( allocate_element(v) );
     }
 
 // common container operations
@@ -130,12 +120,34 @@ public:
         _end  =nullptr;
     }
 
+// range operators 
+public:
+    using iterator = ne_iterator<_Type>;
+
+    iterator begin() const {
+        return iterator(_head);
+    }
+
+    iterator end() const {
+        return iterator(nullptr);
+    }
+
 // internal data types
 private:
     using data_type = ne_node<_Type>;
 
 // internal operations
 private:
+    void add_element(data_type *ptr) {
+        if(!_head) 
+            _head = _last = ptr;
+        else {
+            _last->next = ptr;
+            _last = ptr;
+        }
+        ++_size;
+    }
+
     template<typename ... Args>
     data_type* allocate_element(Args &&...args) {
        data_type* ptr = allocator.allocate(1);
@@ -148,17 +160,6 @@ private:
         allocator.deallocate(ptr,1);
     }
 
-// range operators 
-public:
-    using iterator = ne_iterator<_Type>;
-
-    iterator begin() const {
-        return iterator(_head);
-    }
-
-    iterator end() const {
-        return iterator(nullptr);
-    }
 
 // internal data
 private:

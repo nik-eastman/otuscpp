@@ -1,9 +1,11 @@
 #pragma once
-#include <string>
 #include <list>
-#include <iostream>
 #include <algorithm>
 
+// allocator class
+//  - allocate by chunks (heaps) of N elements each
+//  - can allocate only one element at once
+//  - if chunk is being deleted if it's empty after deleting an element
 template<typename T, std::size_t N>
 class ne_allocator {
 public:
@@ -11,8 +13,6 @@ public:
 
 	using pointer = T *;
 	using const_pointer = const T *;
-	//using reference = T &;
-	//using const_reference = const T &;
 
 	template <typename U>
 	struct rebind {
@@ -30,7 +30,6 @@ public:
 	value_type *allocate(std::size_t n) {
         if(!n) return nullptr; // UB
 
-		//std::cout << "allocate: [n = " << n << "] " << std::endl;
         // try to find an empty pointer in current heaps
         for(auto &h: heaps) {
             auto ptr = h.allocate(n);
@@ -44,7 +43,6 @@ public:
     // mark the pointer as free
     // delete heap if it's necessary
 	void deallocate(value_type *p, std::size_t n) {
-		//std::cout << "deallocate: [n  = " << n << "] at " << p << std::endl;
         // try to find heap pointer belongs to
         for(auto h = heaps.begin(); h != heaps.end(); ++h) {
             if(h->deallocate(p,n)) {
@@ -58,13 +56,11 @@ public:
 
 	template <typename U, typename... Args>
 	void construct(U *p, Args &&...args) {
-		//std::cout << "construct at " << p << std::endl;
 		new (p) U(std::forward<Args>(args)...);
 	};
 
 	template <typename U>
 	void destroy(U *p) {
-		//std::cout << "destroy " << p << std::endl;
 		p->~U();
 	}
 
