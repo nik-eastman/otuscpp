@@ -64,9 +64,16 @@ public:
 		p->~U();
 	}
 
-	bool operator==(const ne_allocator& other) const
+	template <class T, class U>
+	bool operator==(ne_allocator<T> const&, ne_allocator<U> const&) noexcept
 	{
-		return this==&other;
+		return true;
+	}
+
+	template <class T, class U>
+	bool operator!=(ne_allocator<T> const& x, ne_allocator<U> const& y) noexcept
+	{
+		return !(x == y);
 	}
 
 private:
