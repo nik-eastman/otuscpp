@@ -1,5 +1,5 @@
 /*!
-\file
+@file
 Homework 04 for OTUS course: C++ Developoer Professional.
 */
 
@@ -9,12 +9,13 @@ Homework 04 for OTUS course: C++ Developoer Professional.
 #include <tuple>
 
 
-/// delimiter, used for for IP printing
+/// @brief Delimiter, used in IP printing octets
 const char* delimiter = ".";
 
 /////////////////// integer types support /////////////////////
 
 /// Print IP only for integer types
+/// @param v any of integer types
 template<typename T, typename = std::enable_if_t<
     std::is_integral<T>::value &&  // consider all intgral types
     (not std::is_same_v<T,bool>)   // excluding 'bool' type
@@ -30,7 +31,8 @@ void print_ip(T v) {
 
 /////////////////// std::vector, std::list support /////////////////////
 
-/// Print IP for std::list and std::vector types
+/// @brief Print IP for std::list and std::vector types
+/// @param v input container
 template <
 	template <typename, typename> typename Container,
 	typename Type,
@@ -48,7 +50,8 @@ void print_ip(const Container<Type, Allocator>& v) {
 
 /////////////////// std::string support /////////////////////
 
-/// Print IP for string type
+/// @brief Print IP from std::string
+/// @param v std::string value
 template <typename T, typename = std::enable_if_t<std::is_same_v<T, std::string>>>
 void print_ip(const T& v) {
     std::cout << v;
@@ -56,33 +59,38 @@ void print_ip(const T& v) {
 
 /////////////////// std::tuple support /////////////////////
 
-/// Helper for tuple_holds_only 
+/// @brief Helper for tuple_holds_only 
 template <typename, typename>
 struct tuple_holds_only {};
 
-/// Check if std::tuple holds only given type 
+/// @brief Check if std::tuple holds only given type 
 template <typename ...A, typename B>
 struct tuple_holds_only<std::tuple<A...>, B>
     : std::bool_constant<(std::is_same_v<A, B> && ...)>
 {};
 
-template <typename... A>
+/// @brief Helper for is_monotype_tuple 
+template <typename>
 struct is_monotype_tuple {};
 
-/// Check if std::tuple holds values of the same types
+/// @brief Check if std::tuple holds values of the same types
 template <typename A, typename ...B>
 struct is_monotype_tuple<std::tuple<A, B...>>
     : tuple_holds_only<std::tuple<B...>, A>
 {};
 
-/// Prints one std::tuple value by index
+/// @brief Print one std::tuple value by index
+/// @param v value
+/// @param I number of value in tuple_type
 template<typename tuple_type, size_t... I>
 void print_tuple(const tuple_type& v, std::index_sequence<I...>)
 {
     (..., (std::cout << (I == 0 ? "" : delimiter) << std::get<I>(v)));
 }
 
-/// Print IP from std::tuple only if all types in std::tuple are the same
+/// @brief Print IP from std::tuple 
+/// @brief all types in std::tuple must be the same type
+/// @param v - std::tuple value
 template<
         template <typename...> typename tuple_type,
         typename... T, 
@@ -94,6 +102,9 @@ void print_ip(const tuple_type<T...>& v)
 
 /////////////////// main() /////////////////////
 
+/// @brief main fnuction to check functionality
+/// @return 0 if everything is OK
+/// @return !=0 if something is wrong 
 int main (int, char **) {
     print_ip( int8_t{-1} ); // 255
     std::cout << std::endl;
